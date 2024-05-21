@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "Йога",
+    "time": "10:00 - 11:00",
+    "maxParticipants": 15,
+    "currentParticipants": 6
+  },
+  {
+    "id": 2,
+    "title": "Бокс",
+    "time": "12:00 - 13:00",
+    "maxParticipants": 10,
+    "currentParticipants": 9
+  },
+  {
+    "id": 3,
+    "title": "Танцы",
+    "time": "14:00 - 15:00",
+    "maxParticipants": 20,
+    "currentParticipants": 6
+  }
+]
