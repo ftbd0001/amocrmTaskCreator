@@ -1,75 +1,34 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const http = require('http');
 const fs = require('fs');
+const path = require('path');
 
-const app = express();
-const PORT = 3000;
-const DATA_FILE = './data.json';
-
-app.use(bodyParser.json());
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+const server = http.createServer((req, res) => {
+    if (req.url === '/') {
+        fs.readFile(path.join(__dirname, 'index.html'), (err, content) => {
+            if (err) {
+                res.writeHead(500);
+                res.end('Ошибка загрузки index.html');
+            } else {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end(content);
+            }
+        });
+    } else if (req.url === '/script.js') {
+        fs.readFile(path.join(__dirname, 'script.js'), (err, content) => {
+            if (err) {
+                res.writeHead(500);
+                res.end('Ошибка загрузки script.js');
+            } else {
+                res.writeHead(200, { 'Content-Type': 'application/javascript' });
+                res.end(content);
+            }
+        });
+    } else {
+        res.writeHead(404);
+        res.end('Не найдено');
+    }
 });
 
-app.get('/classes', (req, res) => {
-    fs.readFile(DATA_FILE, (err, data) => {
-        if (err) {
-            res.status(500).send("Ошибка при чтении файла данных.");
-            return;
-        }
-        res.json(JSON.parse(data));
-    });
-});
-
-app.post('/enroll', (req, res) => {
-    fs.readFile(DATA_FILE, (err, data) => {
-        if (err) {
-            res.status(500).send("Ошибка при чтении файла данных.");
-            return;
-        }
-        const classes = JSON.parse(data);
-        const { classId } = req.body;
-        const classToEnroll = classes.find(c => c.id === classId);
-        if (classToEnroll && classToEnroll.currentParticipants < classToEnroll.maxParticipants) {
-            classToEnroll.currentParticipants++;
-            fs.writeFile(DATA_FILE, JSON.stringify(classes, null, 2), err => {
-                if (err) {
-                    res.status(500).send("Ошибка при записи в файл данных.");
-                    return;
-                }
-                res.send({ success: true, message: "Вы успешно записаны." });
-            });
-        } else {
-            res.status(400).send({ success: false, message: "Запись невозможна." });
-        }
-    });
-});
-
-app.post('/unenroll', (req, res) => {
-    fs.readFile(DATA_FILE, (err, data) => {
-        if (err) {
-            res.status(500).send("Ошибка при чтении файла данных.");
-            return;
-        }
-        const classes = JSON.parse(data);
-        const { classId } = req.body;
-        const classToUnenroll = classes.find(c => c.id === classId);
-        if (classToUnenroll && classToUnenroll.currentParticipants > 0) {
-            classToUnenroll.currentParticipants--;
-            fs.writeFile(DATA_FILE, JSON.stringify(classes, null, 2), err => {
-                if (err) {
-                    res.status(500).send("Ошибка при записи в файл данных.");
-                    return;
-                }
-                res.send({ success: true, message: "Ваша запись отменена." });
-            });
-        } else {
-            res.status(400).send({ success: false, message: "Отмена не выполнена." });
-        }
-    });
-});
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+server.listen(3000, () => {
+    console.log('Сервер запущен на порту 3000');
 });
